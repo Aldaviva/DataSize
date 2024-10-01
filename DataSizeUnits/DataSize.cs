@@ -8,14 +8,20 @@ namespace DataSizeUnits;
 /// <para><c>var kilobyte = new DataSize(1024);</c></para>
 /// <para><c>var kilobyte = new DataSize(1, Unit.Kilobyte);</c></para>
 /// </summary>
-/// <param name="Quantity">How much of the given data <paramref name="Unit"/> to represent</param>
-/// <param name="Unit">The unit of measure of the given <paramref name="Quantity"/> of data</param>
+/// <param name="quantity">How much of the given data <paramref name="unit"/> to represent</param>
+/// <param name="unit">The unit of measure of the given <paramref name="quantity"/> of data</param>
 [Serializable]
-public readonly record struct DataSize(double Quantity, Unit Unit): IComparable<DataSize>, IFormattable {
+public readonly struct DataSize(double quantity, Unit unit): IComparable<DataSize>, IEquatable<DataSize>, IFormattable {
 
     private static readonly DataSizeFormatter Formatter = DataSizeFormatter.Instance;
 
     private double AsBits => Quantity * CountBitsInUnit(Unit);
+
+    /// <summary>How much of the given data <see cref="Unit"/> to represent</summary>
+    public double Quantity { get; init; } = quantity;
+
+    /// <summary>The unit of measure of the given <see cref="Quantity"/> of data</summary>
+    public Unit Unit { get; init; } = unit;
 
     /// <summary>
     /// Create a new instance that represents 0 bytes.
@@ -230,6 +236,15 @@ public readonly record struct DataSize(double Quantity, Unit Unit): IComparable<
     /// <returns><c>true</c> if this instance and <paramref name="other"/> represent the same amount of data, or <c>false</c> if they represent different amounts</returns>
     public bool Equals(DataSize other) => AsBits.Equals(other.AsBits);
 
+    /// <inheritdoc cref="Equals(DataSizeUnits.DataSize)" />
+    public override bool Equals(object? other) => other is DataSize other2 && Equals(other2);
+
+    /// <inheritdoc cref="Equals(DataSizeUnits.DataSize)" />
+    public static bool operator ==(DataSize self, DataSize other) => self.Equals(other);
+
+    /// <inheritdoc cref="Equals(DataSizeUnits.DataSize)" />
+    public static bool operator !=(DataSize self, DataSize other) => !self.Equals(other);
+
     /// <inheritdoc cref="Double.GetHashCode"/>
     public override int GetHashCode() => AsBits.GetHashCode();
 
@@ -294,9 +309,7 @@ public readonly record struct DataSize(double Quantity, Unit Unit): IComparable<
     /// <param name="a">An amount of data</param>
     /// <param name="b">Another amount of data</param>
     /// <returns>The product of the data sizes of <paramref name="a"/> and <paramref name="b"/>, in the units of <paramref name="a"/></returns>
-    public static DataSize operator *(DataSize a, double b) {
-        return a with { Quantity = a.Quantity * b };
-    }
+    public static DataSize operator *(DataSize a, double b) => a with { Quantity = a.Quantity * b };
 
     /// <summary>
     /// Divides an amount of data

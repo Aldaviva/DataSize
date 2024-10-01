@@ -23,10 +23,12 @@
         <EmbedUntrackedSources>true</EmbedUntrackedSources>
         <LangVersion>latest</LangVersion>
         <Nullable>enable</Nullable>
+        <PackageReadmeFile>Readme.md</PackageReadmeFile>
     </PropertyGroup>
 
     <ItemGroup>
         <AdditionalFiles Include="ExceptionAdjustments.txt" />
+        <None Include="..\Readme.md" Pack="true" PackagePath="\" />
     </ItemGroup>
 
     <ItemGroup>
