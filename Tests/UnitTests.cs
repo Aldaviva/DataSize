@@ -2,7 +2,7 @@
 using DataSizeUnits;
 using Xunit;
 
-namespace Tests; 
+namespace Tests;
 
 /// <summary>
 /// lol

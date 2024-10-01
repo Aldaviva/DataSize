@@ -3,7 +3,7 @@ using System.Globalization;
 using DataSizeUnits;
 using Xunit;
 
-namespace Tests; 
+namespace Tests;
 
 public class DataSizeFormatterTests {
 

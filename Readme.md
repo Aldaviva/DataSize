@@ -1,4 +1,4 @@
-DataSizeUnits
+📏 DataSizeUnits
 ===
 
 [![NuGet Package](https://img.shields.io/nuget/v/DataSizeUnits?logo=nuget)](https://www.nuget.org/packages/DataSizeUnits/) [![Build status](https://img.shields.io/github/actions/workflow/status/Aldaviva/DataSizeUnits/dotnetpackage.yml?branch=master&logo=github)](https://github.com/Aldaviva/DataSizeUnits/actions/workflows/dotnetpackage.yml) [![Test status](https://img.shields.io/testspace/tests/Aldaviva/Aldaviva:DataSizeUnits/master?passed_label=passing&failed_label=failing&logo=data%3Aimage%2Fsvg%2Bxml%3Bbase64%2CPHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA4NTkgODYxIj48cGF0aCBkPSJtNTk4IDUxMy05NCA5NCAyOCAyNyA5NC05NC0yOC0yN3pNMzA2IDIyNmwtOTQgOTQgMjggMjggOTQtOTQtMjgtMjh6bS00NiAyODctMjcgMjcgOTQgOTQgMjctMjctOTQtOTR6bTI5My0yODctMjcgMjggOTQgOTQgMjctMjgtOTQtOTR6TTQzMiA4NjFjNDEuMzMgMCA3Ni44My0xNC42NyAxMDYuNS00NFM1ODMgNzUyIDU4MyA3MTBjMC00MS4zMy0xNC44My03Ni44My00NC41LTEwNi41UzQ3My4zMyA1NTkgNDMyIDU1OWMtNDIgMC03Ny42NyAxNC44My0xMDcgNDQuNXMtNDQgNjUuMTctNDQgMTA2LjVjMCA0MiAxNC42NyA3Ny42NyA0NCAxMDdzNjUgNDQgMTA3IDQ0em0wLTU1OWM0MS4zMyAwIDc2LjgzLTE0LjgzIDEwNi41LTQ0LjVTNTgzIDE5Mi4zMyA1ODMgMTUxYzAtNDItMTQuODMtNzcuNjctNDQuNS0xMDdTNDczLjMzIDAgNDMyIDBjLTQyIDAtNzcuNjcgMTQuNjctMTA3IDQ0cy00NCA2NS00NCAxMDdjMCA0MS4zMyAxNC42NyA3Ni44MyA0NCAxMDYuNVMzOTAgMzAyIDQzMiAzMDJ6bTI3NiAyODJjNDIgMCA3Ny42Ny0xNC44MyAxMDctNDQuNXM0NC02NS4xNyA0NC0xMDYuNWMwLTQyLTE0LjY3LTc3LjY3LTQ0LTEwN3MtNjUtNDQtMTA3LTQ0Yy00MS4zMyAwLTc2LjY3IDE0LjY3LTEwNiA0NHMtNDQgNjUtNDQgMTA3YzAgNDEuMzMgMTQuNjcgNzYuODMgNDQgMTA2LjVTNjY2LjY3IDU4NCA3MDggNTg0em0tNTU3IDBjNDIgMCA3Ny42Ny0xNC44MyAxMDctNDQuNXM0NC02NS4xNyA0NC0xMDYuNWMwLTQyLTE0LjY3LTc3LjY3LTQ0LTEwN3MtNjUtNDQtMTA3LTQ0Yy00MS4zMyAwLTc2LjgzIDE0LjY3LTEwNi41IDQ0UzAgMzkxIDAgNDMzYzAgNDEuMzMgMTQuODMgNzYuODMgNDQuNSAxMDYuNVMxMDkuNjcgNTg0IDE1MSA1ODR6IiBmaWxsPSIjZmZmIi8%2BPC9zdmc%2B)](https://aldaviva.testspace.com/spaces/194266) [![Coverage status](https://img.shields.io/coveralls/github/Aldaviva/DataSizeUnits?logo=coveralls)](https://coveralls.io/github/Aldaviva/DataSizeUnits?branch=master)
@@ -57,11 +57,11 @@ Convert and format data size units in .NET (bits, bytes, kilobits, kilobytes, an
 - **Format** bytes as a string with different unit and precision options
 	- 1,536 bytes to kilobytes, 1 digit after the decimal point → `1.5 KB`
         ```cs
-        string formatted = new DataSize(1536).ConvertToUnit(Unit.Kilobyte).ToString(1); // precision 1, don't change units
+        string formatted = new DataSize(1536).ToString(1, Unit.Kilobyte); // precision 1, change to specified unit
         // formatted == "1.5 KB"
         ```
         ```cs
-        string formatted = new DataSize(1536).ToString(1, Unit.Kilobyte); // precision 1, change to specified unit
+        string formatted = new DataSize(1536).ConvertToUnit(Unit.Kilobyte).ToString(1); // precision 1, don't change units
         // formatted == "1.5 KB"
         ```
         ```cs
@@ -77,7 +77,7 @@ Convert and format data size units in .NET (bits, bytes, kilobits, kilobytes, an
         // formatted == "Size: 1.5 KB"
         ```
         ```cs
-        string formatted = string.Format(new DataSizeFormatter(), "Size: {0:A1}", 1536); // precision 1, normalize to automatic unit
+        string formatted = string.Format(DataSizeFormatter.Instance, "Size: {0:A1}", 1536); // precision 1, normalize to automatic unit
         // formatted == "Size: 1.5 KB"
         ```
     - The format specifier (like `KB1` above) is made up of two optional parts, the destination unit (`KB`) and the precision (`1`).

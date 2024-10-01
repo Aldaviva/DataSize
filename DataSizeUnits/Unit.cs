@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace DataSizeUnits; 
+namespace DataSizeUnits;
 
 /// <summary>
 /// <para>Orders of magnitude of data, from bit and byte to exabit and exabyte.</para>
@@ -81,119 +81,91 @@ public enum Unit {
 
 }
 
+/// <summary>
+/// Methods on instances of the <see cref="Unit"/> enum.
+/// </summary>
 public static class UnitExtensions {
 
     /// <summary>Get the short version of this unit's name (1-3 characters), such as <c>MB</c>.</summary>
-    /// <param name="unit"></param>
+    /// <param name="unit">the unit of data size</param>
     /// <param name="iec"><c>true</c> to return the IEC abbreviation (KiB, MiB, etc.), or <c>false</c> (the default) to return
     /// the JEDEC abbreviation (KB, MB, etc.)</param>
     /// <returns>The abbreviation for this unit.</returns>
-    public static string ToAbbreviation(this Unit unit, bool iec = false) {
-        switch (unit) {
-            case Unit.Byte:
-                return "B";
-            case Unit.Kilobyte:
-                return iec ? "KiB" : "KB";
-            case Unit.Megabyte:
-                return iec ? "MiB" : "MB";
-            case Unit.Gigabyte:
-                return iec ? "GiB" : "GB";
-            case Unit.Terabyte:
-                return iec ? "TiB" : "TB";
-            case Unit.Petabyte:
-                return iec ? "PiB" : "PB";
-            case Unit.Exabyte:
-                return iec ? "EiB" : "EB";
-
-            case Unit.Bit:
-                return "b";
-            case Unit.Kilobit:
-                return "kb";
-            case Unit.Megabit:
-                return "mb";
-            case Unit.Gigabit:
-                return "gb";
-            case Unit.Terabit:
-                return "tb";
-            case Unit.Petabit:
-                return "pb";
-            case Unit.Exabit:
-                return "eb";
-
-            default:
-                throw new ArgumentOutOfRangeException(nameof(unit), unit, null);
-        }
-    }
+    /// <exception cref="ArgumentOutOfRangeException">if <paramref name="unit"/> was force-cast from a fake value</exception>
+    public static string ToAbbreviation(this Unit unit, bool iec = false) => unit switch {
+        Unit.Byte     => "B",
+        Unit.Kilobyte => iec ? "KiB" : "KB",
+        Unit.Megabyte => iec ? "MiB" : "MB",
+        Unit.Gigabyte => iec ? "GiB" : "GB",
+        Unit.Terabyte => iec ? "TiB" : "TB",
+        Unit.Petabyte => iec ? "PiB" : "PB",
+        Unit.Exabyte  => iec ? "EiB" : "EB",
+        Unit.Bit      => "b",
+        Unit.Kilobit  => "kb",
+        Unit.Megabit  => "mb",
+        Unit.Gigabit  => "gb",
+        Unit.Terabit  => "tb",
+        Unit.Petabit  => "pb",
+        Unit.Exabit   => "eb",
+        _             => throw new ArgumentOutOfRangeException(nameof(unit), unit, null)
+    };
 
     /// <summary>
     /// Get the long version of this unit's name, such as <c>megabyte</c>.
     /// </summary>
-    /// <param name="unit"></param>
+    /// <param name="unit">the unit of data size</param>
     /// <param name="iec"><c>true</c> to return the IEC name (kibibyte, mebibyte, etc.), or <c>false</c> (the default) to return
     /// the JEDEC name (kilobyte, megabyte, etc.)</param>
+    /// <exception cref="ArgumentOutOfRangeException">illegal value of <paramref name="unit"/> from force casting</exception>
     /// <returns>The name of this unit.</returns>
-    public static string ToName(this Unit unit, bool iec = false) {
-        switch (unit) {
-            case Unit.Byte:
-                return "byte";
-            case Unit.Kilobyte:
-                return iec ? "kibibyte" : "kilobyte";
-            case Unit.Megabyte:
-                return iec ? "mebibyte" : "megabyte";
-            case Unit.Gigabyte:
-                return iec ? "gibibyte" : "gigabyte";
-            case Unit.Terabyte:
-                return iec ? "tebibyte" : "terabyte";
-            case Unit.Petabyte:
-                return iec ? "pebibyte" : "petabyte";
-            case Unit.Exabyte:
-                return iec ? "exbibyte" : "exabyte";
+    public static string ToName(this Unit unit, bool iec = false) => unit switch {
+        Unit.Byte     => "byte",
+        Unit.Kilobyte => iec ? "kibibyte" : "kilobyte",
+        Unit.Megabyte => iec ? "mebibyte" : "megabyte",
+        Unit.Gigabyte => iec ? "gibibyte" : "gigabyte",
+        Unit.Terabyte => iec ? "tebibyte" : "terabyte",
+        Unit.Petabyte => iec ? "pebibyte" : "petabyte",
+        Unit.Exabyte  => iec ? "exbibyte" : "exabyte",
+        Unit.Bit      => "bit",
+        Unit.Kilobit  => "kilobit",
+        Unit.Megabit  => "megabit",
+        Unit.Gigabit  => "gigabit",
+        Unit.Terabit  => "terabit",
+        Unit.Petabit  => "petabit",
+        Unit.Exabit   => "exabit",
+        _             => throw new ArgumentOutOfRangeException(nameof(unit), unit, null)
+    };
 
-            case Unit.Bit:
-                return "bit";
-            case Unit.Kilobit:
-                return "kilobit";
-            case Unit.Megabit:
-                return "megabit";
-            case Unit.Gigabit:
-                return "gigabit";
-            case Unit.Terabit:
-                return "terabit";
-            case Unit.Petabit:
-                return "petabit";
-            case Unit.Exabit:
-                return "exabit";
+    /// <summary>
+    /// Determine whether a data size <see cref="Unit"/> is based on bits or bytes.
+    /// </summary>
+    /// <param name="unit">the unit of data size</param>
+    /// <returns><c>true</c> if <paramref name="unit"/> is based on bits, or <c>false</c> if it is based on bytes</returns>
+    /// <exception cref="ArgumentOutOfRangeException">illegal value of <paramref name="unit"/> from force casting</exception>
+    public static bool IsMultipleOfBits(this Unit unit) => unit switch {
+        Unit.Byte
+            or Unit.Kilobyte
+            or Unit.Megabyte
+            or Unit.Gigabyte
+            or Unit.Terabyte
+            or Unit.Petabyte
+            or Unit.Exabyte => false,
+        Unit.Bit
+            or Unit.Kilobit
+            or Unit.Megabit
+            or Unit.Gigabit
+            or Unit.Terabit
+            or Unit.Petabit
+            or Unit.Exabit => true,
+        _ => throw new ArgumentOutOfRangeException(nameof(unit), unit, null)
+    };
 
-            default:
-                throw new ArgumentOutOfRangeException(nameof(unit), unit, null);
-        }
-    }
-
-    public static bool IsMultipleOfBits(this Unit unit) {
-        switch (unit) {
-            case Unit.Byte:
-            case Unit.Kilobyte:
-            case Unit.Megabyte:
-            case Unit.Gigabyte:
-            case Unit.Terabyte:
-            case Unit.Petabyte:
-            case Unit.Exabyte:
-                return false;
-
-            case Unit.Bit:
-            case Unit.Kilobit:
-            case Unit.Megabit:
-            case Unit.Gigabit:
-            case Unit.Terabit:
-            case Unit.Petabit:
-            case Unit.Exabit:
-                return true;
-
-            default:
-                throw new ArgumentOutOfRangeException(nameof(unit), unit, null);
-        }
-    }
-
+    /// <summary>
+    /// Construct an instance of <see cref="DataSize"/> based on this <see cref="Unit"/> and the given <paramref name="quantity"/> of that unit.
+    /// </summary>
+    /// <param name="unit">the unit of data size</param>
+    /// <param name="quantity">how many of <paramref name="unit"/> to represent</param>
+    /// <returns>a <see cref="DataSize"/> instance with the given <paramref name="unit"/> and <paramref name="quantity"/></returns>
     public static DataSize Quantity(this Unit unit, double quantity) {
         return new DataSize(quantity, unit);
     }

@@ -39,22 +39,27 @@ public class DataSizeFormatter: IFormatProvider, ICustomFormatter {
 
     private readonly bool _handleTypesBesidesDataSize;
 
+    /// <summary>
+    /// A common shared instance of <see cref="DataSizeFormatter"/> for use by any consumers
+    /// </summary>
     public static readonly DataSizeFormatter Instance = new();
 
     /// <summary>
     /// Create an <see cref="IFormatProvider"/> that can format <see cref="DataSize"/> values in strings.
     /// </summary>
-    /// <param name="handleTypesBesidesDataSize"><see langword="true" /> (default) to make this formatter try to convert any argument value that is not a <see cref="DataSize"/> (e.g. an <see langword="int" />) into a <see langword="long" /> of bytes and format it, or <see langword="false" /> to allow other formatters to handle it instead.</param>
+    /// <param name="handleTypesBesidesDataSize"><c>true</c> (default) to make this formatter try to convert any argument value that is not a <see cref="DataSize"/> (e.g. an <see cref="int"/>) into a <see cref="long"/> of bytes and format it, or <c>false</c>> to allow other formatters to handle it instead.</param>
     public DataSizeFormatter(bool handleTypesBesidesDataSize = true) {
         _handleTypesBesidesDataSize = handleTypesBesidesDataSize;
     }
 
+    /// <inheritdoc />
     public object? GetFormat(Type? formatType) {
         return formatType == typeof(ICustomFormatter) ? this : null;
     }
 
-    /// <exception cref="FormatException"></exception>
-    public string Format(string? format, object? arg, IFormatProvider formatProvider) {
+    /// <inheritdoc />
+    /// <exception cref="FormatException">if an underlying formatter for <paramref name="arg"/> throws a <see cref="FormatException"/></exception>
+    public string Format(string? format, object? arg, IFormatProvider? formatProvider) {
         if (string.IsNullOrEmpty(format)) {
             format = DefaultFormat;
         }
@@ -63,10 +68,9 @@ public class DataSizeFormatter: IFormatProvider, ICustomFormatter {
         if (arg is DataSize size) {
             dataSize = size;
         } else if (_handleTypesBesidesDataSize) {
-            dataSize.Unit = Unit.Byte;
             try {
                 long bytes = Convert.ToInt64(arg);
-                dataSize.Quantity = bytes;
+                dataSize = new DataSize(bytes, Unit.Byte);
             } catch (Exception) {
                 return HandleOtherFormats(format, arg);
             }
@@ -74,7 +78,7 @@ public class DataSizeFormatter: IFormatProvider, ICustomFormatter {
             return HandleOtherFormats(format, arg);
         }
 
-        string unitString = Regex.Match(format, @"^[a-z]+", RegexOptions.IgnoreCase).Value;
+        string unitString = Regex.Match(format, "^[a-z]+", RegexOptions.IgnoreCase).Value;
         if (string.IsNullOrEmpty(unitString)) {
             unitString = DefaultFormat;
         }
@@ -89,18 +93,18 @@ public class DataSizeFormatter: IFormatProvider, ICustomFormatter {
             try {
                 return dataSize.ConvertToUnit(DataSize.ParseUnit(unitString)).ToString(precision, false, formatProvider);
             } catch (ArgumentOutOfRangeException) {
-                return HandleOtherFormats(format, arg);
+                return HandleOtherFormats(format, (arg as DataSize?)?.Quantity ?? arg);
             }
         }
     }
 
-    /// <exception cref="FormatException"></exception>
+    /// <exception cref="FormatException">if an underlying formatter for <paramref name="arg"/> throws a <see cref="FormatException"/></exception>
     private static string HandleOtherFormats(string? format, object? arg) {
         try {
             if (arg is IFormattable formattable) {
                 return formattable.ToString(format, null);
             } else if (arg != null) {
-                return arg.ToString();
+                return arg.ToString() ?? string.Empty;
             } else {
                 return string.Empty;
             }

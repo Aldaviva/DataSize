@@ -1,20 +1,20 @@
-﻿using System;
-using DataSizeUnits;
+﻿using DataSizeUnits;
+using System;
 using Xunit;
 
-namespace Tests; 
+namespace Tests;
 
 public class DataSizeTests {
 
-    [Theory] [MemberData(nameof(AutoScaleData))]
-    public void AutoScale(long inputBytes, double expectedSize, Unit expectedUnit, bool useBytes) {
+    [Theory] [MemberData(nameof(NormalizeData))]
+    public void Normalize(long inputBytes, double expectedSize, Unit expectedUnit, bool useBytes) {
         DataSize actual = new DataSize(inputBytes).Normalize(!useBytes);
 
-        Assert.Equal(expectedSize, actual.Quantity, 3);
         Assert.Equal(expectedUnit, actual.Unit);
+        Assert.Equal(expectedSize, actual.Quantity, 3);
     }
 
-    public static TheoryData<long, double, Unit, bool> AutoScaleData => new() {
+    public static TheoryData<long, double, Unit, bool> NormalizeData => new() {
         { 0, 0.0, Unit.Byte, true },
         { 1, 1, Unit.Byte, true },
         { 1023, 1023.0, Unit.Byte, true },
@@ -35,6 +35,8 @@ public class DataSizeTests {
         { 1024L * 1024 * 1024 * 1024, 8.796093022208, Unit.Terabit, false },
         { 1024L * 1024 * 1024 * 1024 * 1024, 9.007199254740992, Unit.Petabit, false },
         { 1024L * 1024 * 1024 * 1024 * 1024 * 1024, 9.22337203685478, Unit.Exabit, false },
+        { 125_000_000_000_000_000, 1, Unit.Exabit, false },
+        { 124_999_937_499_999_991, 999.999, Unit.Petabit, false },
     };
 
     [Theory] [MemberData(nameof(ScaleToData))]
@@ -69,8 +71,8 @@ public class DataSizeTests {
 
     [Theory] [MemberData(nameof(EqualityData))]
     public void Equality(double quantity1, Unit unit1, double quantity2, Unit unit2) {
-        DataSize dataSize1 = new DataSize(quantity1, unit1);
-        DataSize dataSize2 = new DataSize(quantity2, unit2);
+        DataSize dataSize1 = new(quantity1, unit1);
+        DataSize dataSize2 = new(quantity2, unit2);
 
         Assert.True(dataSize1.Equals(dataSize2));
         Assert.True(dataSize1.Equals((object) dataSize2));
@@ -93,8 +95,8 @@ public class DataSizeTests {
 
     [Theory] [MemberData(nameof(InequalityData))]
     public void Inequality(double quantity1, Unit unit1, double quantity2, Unit unit2, bool isInput2BiggerThanInput1) {
-        DataSize dataSize1 = new DataSize(quantity1, unit1);
-        DataSize dataSize2 = new DataSize(quantity2, unit2);
+        DataSize dataSize1 = new(quantity1, unit1);
+        DataSize dataSize2 = new(quantity2, unit2);
 
         Assert.False(dataSize1.Equals(dataSize2));
         Assert.False(dataSize1 == dataSize2);
@@ -169,6 +171,13 @@ public class DataSizeTests {
     public void FromBytes() {
         DataSize actual = 1024;
         Assert.Equal(1024, actual.Quantity);
+        Assert.Equal(Unit.Byte, actual.Unit);
+    }
+
+    [Fact]
+    public void ParameterlessConstructor() {
+        DataSize actual = new();
+        Assert.Equal(0, actual.Quantity);
         Assert.Equal(Unit.Byte, actual.Unit);
     }
 
